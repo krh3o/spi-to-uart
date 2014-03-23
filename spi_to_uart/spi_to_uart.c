@@ -60,10 +60,26 @@ void init_spi_slave_polling (void)
 void spi_slave_receive_polling (void (*fp)(uint8_t))
 {
     while (1)
-    {        
+    {
         // Wait until Char is received
         while (!(SPSR & (1<<SPIF)));
-        
+            
+        // check for expected value
+        if (SPDR == 'd')
+        {
+            break;
+        }
+            
+        // reset spi interface by pulling SS high
+        PORTB |= (1<<PORTB2);
+        PORTB &= ~(1<<PORTB2);
+    }
+    
+    while (1)
+    {
+        // Wait until Char is received
+        while (!(SPSR & (1<<SPIF)));
+            
         // Callback
         fp(SPDR);
     }
